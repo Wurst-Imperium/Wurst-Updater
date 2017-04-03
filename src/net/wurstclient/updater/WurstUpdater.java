@@ -7,10 +7,8 @@
  */
 package net.wurstclient.updater;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URL;
@@ -27,10 +25,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.swing.UIManager;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
 public final class WurstUpdater
 {
 	private final ProgressDialog progress = new ProgressDialog();
@@ -39,14 +33,14 @@ public final class WurstUpdater
 	{
 		if(args.length != 4 || !"update".equals(args[0]))
 		{
-			System.out
-				.println("Syntax: update <release_id> <path> <repository>");
+			System.out.println(
+				"Syntax: update <path> <wurst_version> <minecraft_version>");
 			return;
 		}
 		
 		try
 		{
-			new WurstUpdater().update(args[1], Paths.get(args[2]), args[3]);
+			new WurstUpdater().update(Paths.get(args[1]), args[2], args[3]);
 			
 		}catch(Throwable e)
 		{
@@ -54,7 +48,7 @@ public final class WurstUpdater
 		}
 	}
 	
-	public void update(String releaseId, Path dir, String repository)
+	public void update(Path dir, String wurstVersion, String mcVersion)
 		throws IOException
 	{
 		try
@@ -71,7 +65,11 @@ public final class WurstUpdater
 			progress.setVisible(true);
 			
 			progress.setLine1("Preparing Download");
-			URL url = getDownloadUrl(repository, releaseId);
+			URL url = URI.create(
+				"https://github.com/Wurst-Imperium/Wurst-MCX/releases/download/v"
+					+ wurstVersion + "/Wurst-Client-v" + wurstVersion + "-MC"
+					+ mcVersion + ".zip")
+				.toURL();
 			Path tmp = Files.createTempFile(dir, null, null);
 			
 			try
@@ -97,17 +95,6 @@ public final class WurstUpdater
 		{
 			progress.dispose();
 		}
-	}
-	
-	private URL getDownloadUrl(String repo, String id) throws IOException
-	{
-		JsonArray assets = fetchJson("https://api.github.com/repos/" + repo
-			+ "/releases/" + id + "/assets").getAsJsonArray();
-		
-		String downloadUrl = assets.get(0).getAsJsonObject()
-			.get("browser_download_url").getAsString();
-		
-		return new URL(downloadUrl);
 	}
 	
 	private void download(URL url, Path temporaryZip) throws IOException
@@ -200,15 +187,5 @@ public final class WurstUpdater
 			{
 				
 			}
-	}
-	
-	private JsonElement fetchJson(String url) throws IOException
-	{
-		URI u = URI.create(url);
-		try(InputStream in = u.toURL().openStream())
-		{
-			return new JsonParser()
-				.parse(new BufferedReader(new InputStreamReader(in)));
-		}
 	}
 }
