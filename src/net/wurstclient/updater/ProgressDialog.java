@@ -44,7 +44,7 @@ public class ProgressDialog extends JDialog
 		
 		JLabel lblWurstLogo = new JLabel((String)null);
 		lblWurstLogo.setIcon(new ImageIcon(ProgressDialog.class
-			.getResource("/tk/wurst_client/updater/wurst_253x64.png")));
+			.getResource("/net/wurstclient/updater/wurst_253x64.png")));
 		GridBagConstraints gbc_lblWurstLogo = new GridBagConstraints();
 		gbc_lblWurstLogo.insets = new Insets(0, 0, 5, 0);
 		gbc_lblWurstLogo.gridx = 0;
