@@ -1,21 +1,23 @@
 /*
  * Copyright © 2014 - 2017 | Wurst-Imperium | All rights reserved.
- * 
+ *
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package net.wurstclient.updater;
 
-import javax.swing.JDialog;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
-import javax.swing.ImageIcon;
-import java.awt.Insets;
-import java.awt.Toolkit;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.Toolkit;
+
+import javax.swing.ImageIcon;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.WindowConstants;
 
 public class ProgressDialog extends JDialog
 {
@@ -28,7 +30,7 @@ public class ProgressDialog extends JDialog
 	public ProgressDialog()
 	{
 		setAlwaysOnTop(true);
-		setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+		setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
 		setTitle("Wurst Updater");
 		setResizable(false);
 		setUndecorated(true);
