@@ -17,11 +17,8 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import javax.swing.UIManager;
 
@@ -66,9 +63,9 @@ public final class WurstUpdater
 			
 			progress.setLine1("Preparing Download");
 			URL url = URI.create(
-				"https://github.com/Wurst-Imperium/Wurst-MCX/releases/download/v"
+				"https://github.com/Wurst-Imperium/Wurst-MCX2/releases/download/v"
 					+ wurstVersion + "/Wurst-Client-v" + wurstVersion + "-MC"
-					+ mcVersion + ".zip")
+					+ mcVersion + ".jar")
 				.toURL();
 			Path tmp = Files.createTempFile(dir, null, null);
 			
@@ -77,8 +74,8 @@ public final class WurstUpdater
 				progress.setLine1("Downloading Update");
 				download(url, tmp);
 				
-				progress.setLine1("Extracting Update");
-				extract(tmp, dir);
+				progress.setLine1("Installing Update");
+				install(tmp, dir);
 				
 			}finally
 			{
@@ -97,7 +94,7 @@ public final class WurstUpdater
 		}
 	}
 	
-	private void download(URL url, Path temporaryZip) throws IOException
+	private void download(URL url, Path temporaryJar) throws IOException
 	{
 		URLConnection connection = url.openConnection();
 		
@@ -117,7 +114,7 @@ public final class WurstUpdater
 			" / " + dataFormat.format(bytesTotal / 1048576D) + " MB";
 		
 		try(InputStream input = connection.getInputStream();
-			OutputStream output = Files.newOutputStream(temporaryZip))
+			OutputStream output = Files.newOutputStream(temporaryJar))
 		{
 			byte[] buffer = new byte[8192];
 			for(int length; (length = input.read(buffer)) != -1; output
@@ -135,23 +132,21 @@ public final class WurstUpdater
 		progress.setLine2(null);
 	}
 	
-	private void extract(Path zip, Path dir) throws IOException
+	private void install(Path installer, Path dir) throws IOException
 	{
-		try(ZipInputStream input =
-			new ZipInputStream(Files.newInputStream(zip)))
+		ProcessBuilder pb = new ProcessBuilder("cmd.exe", "/c", "java", "-jar",
+			installer.toString(), "update",
+			dir.getParent().getParent().toString(),
+			dir.resolve(dir.getFileName() + ".jar.update").toString());
+		pb.redirectErrorStream(true);
+		Process p = pb.start();
+		
+		try
 		{
-			for(ZipEntry entry; (entry = input.getNextEntry()) != null;)
-			{
-				String name = entry.getName();
-				String ext = name.substring(name.lastIndexOf("."));
-				
-				if(!ext.equals(".jar"))
-					continue;
-				
-				Files.copy(input,
-					dir.resolve(dir.getFileName() + ext + ".update"),
-					StandardCopyOption.REPLACE_EXISTING);
-			}
+			p.waitFor();
+		}catch(InterruptedException e)
+		{
+			e.printStackTrace();
 		}
 	}
 	
